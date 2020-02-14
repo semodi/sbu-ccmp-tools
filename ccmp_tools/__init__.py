@@ -1,6 +1,6 @@
 """
 sbu-ccmp-tools
- Libary of utilites to analyze the ouput of electronic structure programs 
+ Libary of utilites to analyze the ouput of electronic structure programs
 """
 
 # Add imports here
@@ -12,3 +12,6 @@ versions = get_versions()
 __version__ = versions['version']
 __git_revision__ = versions['full-revisionid']
 del get_versions, versions
+
+from . import io
+from . import base
