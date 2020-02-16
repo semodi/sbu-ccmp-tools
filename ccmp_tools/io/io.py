@@ -5,8 +5,10 @@ File input and output
 from ccmp_tools.base import ABCRegistry
 from abc import ABC, abstractmethod
 
+
 class FileIORegistry(ABCRegistry):
     REGISTRY = {}
+
 
 class FileIO(metaclass=FileIORegistry):
     """ Abstract base class for classes dealing with

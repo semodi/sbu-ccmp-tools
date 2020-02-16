@@ -7,6 +7,7 @@ import ccmp_tools
 import pytest
 import sys
 
+
 def test_ccmp_tools_imported():
     """Sample test, will always pass so long as import statement worked"""
     assert "ccmp_tools" in sys.modules

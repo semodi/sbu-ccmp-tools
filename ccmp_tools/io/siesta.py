@@ -46,9 +46,10 @@ class AniIO(FileIO):
         except FileExistsError:
             os.remove(xyz_path)
             os.symlink(path, xyz_path)
-        atoms = ase_read(xyz_path,':')
+        atoms = ase_read(xyz_path, ':')
         os.remove(xyz_path)
         return atoms
+
 
 class FdfIO(FileIO):
     """ FileIO class to read SIESTA .fdf files
@@ -94,7 +95,7 @@ class FdfIO(FileIO):
         def apply_transformations(x):
             for t in transformations:
                 try:
-                    x= t(x)
+                    x = t(x)
                     break
                 except Exception:
                     continue
