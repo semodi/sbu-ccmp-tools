@@ -13,5 +13,6 @@ __version__ = versions['version']
 __git_revision__ = versions['full-revisionid']
 del get_versions, versions
 
-from . import io
 from . import base
+from . import io
+from . import md

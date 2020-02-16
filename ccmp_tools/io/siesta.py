@@ -1,10 +1,11 @@
 """
 File input and output for SIESTA related files
 """
+import os
+import pandas as pd
 from .io import FileIO
 from ase.io import read as ase_read
 from ase.io import write as ase_write
-import os
 
 
 def read(path):
@@ -31,6 +32,23 @@ def read(path):
 
 class SiestaIO(FileIO):
     _registry_name = 'siesta'
+
+
+class MdeIO(FileIO):
+    """ FileIO class to read SIESTA .MDE files
+    """
+    _registry_name = 'siesta_MDE'
+
+    def read(self, path):
+        content = pd.read_csv(path, delim_whitespace=True)
+        cleaned_columns = list(content.columns[::2])
+        cleaned_columns[0] = 'Step'
+        cleaned_columns = cleaned_columns + [''] * (len(content.columns) - len(cleaned_columns))
+        columns_dict = {'T': 'Temperature', 'E_KS': 'E_pot', 'Vol': 'Volume', 'P': 'Pressure'}
+        content.columns = [columns_dict.get(c, c) for c in cleaned_columns]
+        content = content.dropna(axis=1).set_index('Step')
+
+        return content
 
 
 class AniIO(FileIO):
@@ -60,15 +78,15 @@ class FdfIO(FileIO):
         content = {}
 
         with open(path, 'r') as file:
-            for entry in self.next_fdf_entry(file):
+            for entry in self._next_fdf_entry(file):
                 key, value = entry[1].popitem()
-                value = self.parse_entry(value, entry[0])
+                value = self._parse_entry(value, entry[0])
                 content[key] = value
 
         return content
 
     @staticmethod
-    def parse_entry(entry, block=False):
+    def _parse_entry(entry, block=False):
         """ Given an entry, parse it with a given hierarchy of transformations:
             (int, float, (float, string), boolean, string). Tries to transform
             fdf blocks into arrays
@@ -116,7 +134,7 @@ class FdfIO(FileIO):
         return entry
 
     @staticmethod
-    def next_fdf_entry(file):
+    def _next_fdf_entry(file):
         """ Returns an iterator over entries in SIESTA .fdf file
 
         Parameters
