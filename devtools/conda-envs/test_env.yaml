@@ -7,6 +7,8 @@ dependencies:
   - python
   - pip
   - ase
+  - numpy
+  - pandas
     # Testing
   - pytest
   - pytest-cov
