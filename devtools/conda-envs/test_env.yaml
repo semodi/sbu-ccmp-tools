@@ -1,10 +1,12 @@
 name: test
-channels:
+channels: 
+  - base
+  - conda-forge
 dependencies:
     # Base depends
   - python
   - pip
-
+  - ase
     # Testing
   - pytest
   - pytest-cov
