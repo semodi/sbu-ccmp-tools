@@ -58,7 +58,7 @@ class AniIO(FileIO):
 
     def read(self, path):
         assert path.split('.')[-1] == 'ANI'
-        xyz_path = path.replace('ANI', 'xyz')
+        xyz_path = '.tmp.xyz'
         try:
             os.symlink(path, xyz_path)
         except FileExistsError:

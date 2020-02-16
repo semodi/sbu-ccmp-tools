@@ -54,7 +54,7 @@ class Trajectory():
         self._snapshots = snapshots
 
         #Parameter defaults
-        self._parameters = {'md.typeofrun': 'Verlet'}
+        self._parameters = {'md.typeofrun': 'Verlet', 'md.timestep': (1, 'fs')}
         if parameters:
             self._parameters.update(parameters)
         self._properties = properties
@@ -67,7 +67,7 @@ class Trajectory():
         # self.parameters.update(kwargs)
 
     def _determine_cell(self):
-        #TODO: Different ways to provide unitcell
+        #TODO: Different ways to provide unitcell in siesta
         if 'latticeconstant' in self._parameters and\
             'latticevectors' in self._parameters:
             lat_const = self._parameters['latticeconstant'][0]
