@@ -196,22 +196,3 @@ class SiestaSimulation(Simulation):
                 #set size to 10% greater than max-min of coordinates, cubic
                 self.universe.dimensions = 3*[cell_size*1.1] + 3*[90]
                     
-#%%
-p = '/home/awills/Documents/Research/SIESTA/pbe/hdcl/4'
-fp = os.path.join(p, 'sim.fdf')
-fdf = sisl.get_sile(fp)
-lat_c = fdf.get("LatticeConstant")
-lat_v = np.array([float(v) for i in fdf.get("LatticeVectors") for v in i.split()]).reshape(3,3)
-cell = lat_c*lat_v
-ani = fdf.get("SystemLabel")+'.ANI'
-dt = fdf.get('MD.LengthTimeStep')
-traj = MD.Universe(os.path.join(p, ani), topology_format='xyz', format='xyz',
-                   dt=dt)
-traj.dimensions = list(cell.diagonal())+[90,90,90]
-traj.trajectory.units['time'] = 'fs'
-#%%
-tst = SiestaSimulation(p, fdfb='sim.fdf')
-tst.iMD(ani=True)
-#%%
-tst = SiestaSimulation(p, fdfb=False)
-tst.iMD(ani=True)
