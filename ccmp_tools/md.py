@@ -102,29 +102,29 @@ class SiestaSimulation(Simulation):
             # TODO: expand data read in, add functionality for user input keys to .get()
             self.simlabel = self.fdf.get("SimulationLabel")
             self.latticeconstant = self.fdf.get('LatticeConstant')
-            self.latticevectors = np.array([float(v) for i in fdf.get("LatticeVectors") for v in i.split()]).reshape(3,3)
-            self.dt = fdf.get('MD.LengthTimeStep')
-            self.istep = fdf.get("MD.InitialTimeStep")
-            self.fstep = fdf.get("MD.FinalTimeStep")
+            self.latticevectors = np.array([float(v) for i in self.fdf.get("LatticeVectors") for v in i.split()]).reshape(3,3)
+            self.dt = self.fdf.get('MD.LengthTimeStep')
+            self.istep = self.fdf.get("MD.InitialTimeStep")
+            self.fstep = self.fdf.get("MD.FinalTimeStep")
             #if both are specified, find number of steps
             if self.istep and self.fstep:
-                self.nsteps = fdf.get("MD.FinalTimeStep") - fdf.get("MD.InitialTimeStep") + 1 #inclusive of first step
+                self.nsteps = self.fdf.get("MD.FinalTimeStep") - self.fdf.get("MD.InitialTimeStep") + 1 #inclusive of first step
             #if only final is specified
             elif self.fstep and not self.istep:
                 self.nsteps = self.fstep
             #if number of steps, assume MD simulation as opposed to GO or other
             if self.nsteps:
                 self.simtype= 'md'
-            self.mdtype = fdf.get("MD.TypeOfRun")
+            self.mdtype = self.fdf.get("MD.TypeOfRun")
             #if mdtype is FC, this is a phonon calculation
             if self.mdtype.lower() == 'FC'.lower():
                 self.simtype = 'phonon'
             #if mdtype is CG, Broyden, or FIRE then it's GO
             if self.mdtype.lower() in ['cg', 'broyden', 'fire']:
                 self.simtype = 'go'
-            self.natoms = fdf.get("NumberOfAtoms")
-            self.nspecies = fdf.get("NumberOfSpecies")
-            self.chemspeclab = [i.split() for i in fdf.get("ChemicalSpeciesLabel")]
+            self.natoms = self.fdf.get("NumberOfAtoms")
+            self.nspecies = self.fdf.get("NumberOfSpecies")
+            self.chemspeclab = [i.split() for i in self.fdf.get("ChemicalSpeciesLabel")]
         
     def iMD(self, ani=None, fext='.ANI', defaultcell=True):
         '''
@@ -196,3 +196,31 @@ class SiestaSimulation(Simulation):
                 #set size to 10% greater than max-min of coordinates, cubic
                 self.universe.dimensions = 3*[cell_size*1.1] + 3*[90]
                     
+    def iMDE(self, mde=None, fext='.MDE'):
+        '''
+        Parameters
+        ----------
+        mde : arbitrary, optional
+            Either a string with SimulationLabel.MDE or a value to be checked by bool(). 
+            The default is None.
+        fext : str, optional
+            The file extension for the MDE file, if not standard. The default is '.MDE'.
+
+        Returns
+        -------
+        None. Updates object in-place:
+            IF FOUND: 
+                COLUMNS ARE Step, T (K), E_KS (eV), E_tot (eV), Vol (A^3), P (kBar)
+            If mde is a (non-empty) string and a file in self.path with matching mdeext(ension) is found as an extension,
+                this sets self.mdep(ath) to input and self.mde as an np.ndarray object with shape (nsteps, 6)
+            If mde is is not a string, or is a string without matching mdeext(ension),
+                we look for a file in self.path with matching mdeext(ension) and set self.mdep as the matching file
+                and self.mde as the np.ndarray object with shape (nsteps, 6) with that path.
+            If the file is not found or specified as False, we set self.mdep as None.
+        '''
+        #first look for mde file
+        self._filefind(mde, fext, 'mdep')
+        #make sure there is one
+        assert self.mdep, '{} file not found in simulation directory.'.format(fext)
+        self.mde = np.loadtxt(os.path.join(self.path, self.mdep),
+                              comments='#')
